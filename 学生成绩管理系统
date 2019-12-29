@@ -1,0 +1,842 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <windows.h>
+#include <malloc.h>
+#include <ctype.h>
+#define LEN sizeof(struct student) 
+#define NULL 0
+int n;                //声明全局变量n
+typedef struct student 
+{
+	int y_n;
+	double id;
+	char name[20];
+	float gaoshu;
+	float c_yuyan;
+	float english;
+	float average;
+	struct student* next;
+}abcd;                  //声明学生结构体struct student并且typedef struct student 为 abcd.
+abcd* head;          //声明全局变量head
+
+//新建链表
+abcd* create()                         
+{
+	abcd* p1, * p2;                    //声明abcd结构体类型的指针
+	n = 0;                             //给全局变量n赋初值0
+	p1 = (abcd*)malloc(LEN);           //给P1分配一个结构体abcd大小的内存
+	if (p1 != NULL)                    //给链表赋值
+	{
+		while (1) {
+			printf("请输入11位学号：\n");
+			scanf("%lf", &p1->id);
+			if (p1->id >= 10000000000 && p1->id <= 99999999999)
+				break;
+			else
+			{
+				printf("学号输入的长度不对，请重新输入\n");
+			}
+		}
+		
+		printf("请输入姓名：\n");
+		scanf("%s", &p1->name);
+		printf("请输入高数成绩：\n");
+		scanf("%f", &p1->gaoshu);
+		printf("请输入C语言成绩：\n");
+		scanf("%f", &p1->c_yuyan);
+		printf("请输入英语成绩：\n");
+		scanf("%f", &p1->english);
+		p1->average = (float)(p1->c_yuyan + p1->gaoshu + p1->english) / 3.0;        //计算平均值
+		head = p1;                                 
+		p2 = p1;
+		n += 1;     //令n的数值加一统计输入的学生数目
+	}
+	else {
+		printf("错误\n");              //当内存分配失败输出错误
+		exit(0);
+	}
+	for (;1; n++) {
+		p1 = (abcd*)malloc(LEN);            //分配内存
+		if (p1 != NULL) 
+		{
+			printf("是否继续输入学生信息？是 输入1   否 输入0\n");
+			scanf("%d", &p1->y_n);
+			if (p1->y_n==0)                //当输入的y_n不等于0的时候一直输入成绩
+				break;
+			system("cls");
+			while (1) {
+				printf("请输入11位学号：\n");
+				scanf("%lf", &p1->id);
+				if (p1->id >= 10000000000 && p1->id <= 99999999999)
+					break;
+				else
+				{
+					printf("学号输入的长度不对，请重新输入\n");
+				}
+			}
+			printf("请输入姓名：\n");
+			scanf("%s", &p1->name);
+			printf("请输入高数成绩：\n");
+			scanf("%f", &p1->gaoshu);
+			printf("请输入C语言成绩：\n");
+			scanf("%f", &p1->c_yuyan);
+			printf("请输入英语成绩：\n");
+			scanf("%f", &p1->english);
+			p1->average = (p1->c_yuyan + p1->gaoshu + p1->english) / 3.0;
+			p2->next = p1;           //指向下一个节点
+			p2 = p1;
+		}
+		else {
+			printf("错误\n");
+			exit(0);
+		}
+	}
+	p2->next = NULL;           //令尾节点为空
+	return(head);              //返回链表
+}
+
+/*void baocun(abcd* head)
+{
+	FILE* fp;
+	if ((fp = fopen("student_manage.txt", "wb")) == NULL)
+	{
+		printf("cannot open file! \n");
+		return;
+	}
+}*/
+
+//插入学生信息到链表尾
+abcd* add(abcd* head,abcd*stu)              
+{
+	abcd* p0, * p1;
+	p1 = head;
+	p0 = stu;                       
+	if (head == NULL)				
+	{
+		head = p0;
+		p0->next = NULL;
+	}
+	else
+	{
+		while (p1->next != NULL)             //找到尾节点
+		{	
+			p1 = p1->next;
+		}
+		p1->next = p0;                 //将新建的学生结构体地址放到尾节点
+		p0->next = NULL;
+	}
+	n = n + 1;                        ////令n的数值加一统计输入的学生数目
+	return(head);
+}
+
+//根据输入的学号释放这个学号的节点内存
+abcd* delete(abcd*head, double num)
+{
+	abcd* p1, * p2;
+	if (head == NULL)			
+	{
+		printf("\n\t当前没有学生成绩信息录入!\n");
+		return(head);
+	}
+	p1 = head;
+	while (num != p1->id && p1->next != NULL)      //遍历链表  找出学号对应的节点位置
+	{
+		p2 = p1;
+		p1 = p1->next;
+	}
+	if (num == p1->id)	               								
+	{
+		if (p1 == head)
+			head = p1->next;
+		else											
+			p2->next = p1->next;
+		printf("\n你删除/修改的学生信息为: \n");
+		printf("学号为：%.0lf\n", p1->id);
+		printf("姓名为：%s\n", p1->name);
+		printf("高数成绩为：%.1f\n", p1->gaoshu);
+		printf("C语言成绩为：%.1f\n", p1->c_yuyan);
+		printf("英语成绩为：%.1f\n", p1->english);
+		printf("平均成绩为：%.1f\n\n", p1->average);
+		n = n - 1;              //总学生数量减一
+		free(p1);                  //释放内存
+	}
+	else				
+		printf("学号  %.0lf  没有找到!\n", num);
+	return(head);
+}
+
+//根据学号查找学生信息
+abcd* look(abcd* head, double num)
+{
+	struct student* p1, * p2;
+	p1 = head;
+	if (head == NULL)		
+	{
+		printf("链表为空！\n");
+		return(head);
+	}
+	else
+	{
+		while (num != p1->id && p1->next != NULL)
+		{
+			p2 = p1;
+			p1 = p1->next;
+		}
+		if (num == p1->id)			
+		{
+			printf("你查找的学生信息为：\n");
+			printf("学号为：%.0lf\n", p1->id);
+			printf("姓名为：%s\n", p1->name);
+			printf("高数成绩为：%.1f\n", p1->gaoshu);
+			printf("C语言成绩为：%.1f\n", p1->c_yuyan);
+			printf("英语成绩为：%.1f\n", p1->english);
+			printf("平均成绩为：%.1f\n", p1->average);
+		}
+		else					
+			printf("你输入的学号不在链表内！\n");
+	}
+	return(head);
+}
+
+//根据学生姓名查找学生信息
+abcd* look_n(abcd* head,char *name)
+{
+	int cmp;
+	struct student* p1, * p2;
+	p1 = head;
+	if (head == NULL)
+	{
+		printf("\n链表为空！\n");
+		return(head);
+	}
+	else
+	{
+		p2 = p1;
+		while ((cmp = strcmp(name, p1->name))!=0 && p1->next != NULL)
+		{
+			p1 = p1->next;
+			p2 = p1;	
+		}
+		if (cmp == 0)
+		{
+			printf("你查找的学生信息为：\n\n");
+			printf("学号为：%.0lf\n", p2->id);
+			printf("姓名为：%s\n", p2->name);
+			printf("高数成绩为：%.1f\n", p2->gaoshu);
+			printf("C语言成绩为：%.1f\n", p2->c_yuyan);
+			printf("英语成绩为：%.1f\n", p2->english);
+			printf("平均成绩为：%.1f\n", p2->average);
+		}
+		else
+		{
+			printf("你输入的学生姓名不在链表内！\n");
+		}
+	}
+	return(head);
+}
+
+//根据学号改变学生成绩信息
+abcd* change(abcd* head, double num)
+{
+	int a;
+	abcd* p1, * p2;
+	if (head == NULL)			//空链表时返回
+	{
+		printf("\n\t链表为空!\n");
+		return(head);
+	}
+	p1 = head;
+	while (num != p1->id && p1->next != NULL)
+	{
+		p2 = p1;
+		p1 = p1->next;
+	}
+	if (num == p1->id)									//链表找到相应的学号
+	{
+		printf("你修改的学生信息为: \n");
+		printf("学号为：%.0lf\n", p1->id);
+		printf("姓名为：%s\n", p1->name);
+		printf("高数成绩为：%.1f\n", p1->gaoshu);
+		printf("C语言成绩为：%.1f\n", p1->c_yuyan);
+		printf("英语成绩为：%.1f\n", p1->english);
+		printf("平均成绩为：%.1f\n", p1->average);
+		printf("\n\n是否确认修改该学生信息？\t 请输入1/0\n");
+		scanf("%d", &a);
+		if (a == 0)         //如果输入 0 则直接跳到函数尾
+		{
+			goto end;
+		}
+		if (p1 == head)
+			head = p1->next;
+		else										
+			p2->next = p1->next;
+			n = n - 1;
+			free(p1);             //释放修改前的内存
+			abcd* stu;                 //声明他结构体abcd类型的指针stu
+			stu = (abcd*)malloc(LEN);    //给stu分配内存
+			printf("\n\n请输入你修改后的学生信息：\n");
+			while (1) {
+				printf("请输入11位学号：\n");
+				scanf("%lf", &stu->id);
+				if (stu->id >= 10000000000 && stu->id <= 99999999999)
+					break;
+				else
+				{
+					printf("学号输入的长度不对，请重新输入\n");
+				}
+			}
+			printf("请输入姓名：\n");
+			scanf("%s", &stu->name);
+			printf("请输入高数成绩：\n");
+			scanf("%f", &stu->gaoshu);
+			printf("请输入C语言成绩：\n");
+			scanf("%f", &stu->c_yuyan);
+			printf("请输入英语成绩：\n");
+			scanf("%f", &stu->english);
+			stu->average = (stu->c_yuyan + stu->gaoshu + stu->english) / 3.0;
+			head = add(head, stu);        //将修改后的信息插入到链表尾
+		
+	end:;
+	}
+	else				//找不到学号
+		printf("学号%.0lf没有找到!\n", num);
+	return(head);
+}
+
+//根据平均成绩排序
+abcd* sort_ave(abcd* head)
+{
+	abcd* p1, * p2;
+	float temp_a,temp_g,temp_c,temp_e;
+	double temp_id;
+	char temp_n[20];      //用来交换信息的中间值
+	for (p1 = head; p1 != NULL; p1 = p1->next)        //冒泡排序
+	{
+		for (p2 = p1->next; p2 != NULL;p2 = p2->next)
+		{
+			if (p1->average < p2->average)        //交换两个节点的信息
+			{
+				temp_a = p2->average;
+				p2->average = p1->average;
+				p1->average = temp_a;
+				temp_c = p2->c_yuyan;
+				p2->c_yuyan = p1->c_yuyan;
+				p1->c_yuyan = temp_c;
+				temp_e = p2->english;
+				p2->english = p1->english;
+				p1->english = temp_e;
+				temp_g = p2->gaoshu;
+				p2->gaoshu = p1->gaoshu;
+				p1->gaoshu = temp_g;
+				strcpy(temp_n, p2->name);
+				strcpy(p2->name, p1->name);
+				strcpy(p1->name, temp_n);
+				temp_id = p2->id;
+				p2->id = p1->id;
+				p1->id = temp_id;
+
+			}
+		}
+	}
+	return head;
+}
+
+//根据学生学号进行排序
+abcd* sort_id(abcd* head)
+{
+	abcd* p1, * p2;
+	float temp_a, temp_g, temp_c, temp_e;
+	double temp_id;
+	char temp_n[20];      
+	for (p1 = head; p1 != NULL; p1 = p1->next)
+	{
+		for (p2 = p1->next; p2 != NULL; p2 = p2->next)
+		{
+			if (p1->id > p2->id)
+			{
+				temp_a = p2->average;
+				p2->average = p1->average;
+				p1->average = temp_a;
+				temp_c = p2->c_yuyan;
+				p2->c_yuyan = p1->c_yuyan;
+				p1->c_yuyan = temp_c;
+				temp_e = p2->english;
+				p2->english = p1->english;
+				p1->english = temp_e;
+				temp_g = p2->gaoshu;
+				p2->gaoshu = p1->gaoshu;
+				p1->gaoshu = temp_g;
+				strcpy(temp_n, p2->name);
+				strcpy(p2->name, p1->name);
+				strcpy(p1->name, temp_n);
+				temp_id = p2->id;
+				p2->id = p1->id;
+				p1->id = temp_id;
+
+			}
+		}
+	}
+	return head;
+}
+
+//根据输入的学生姓名来返回该学生学号信息
+double change_n(abcd* head, char* change_name)
+{
+	int cmp1;
+	double c_name;
+	struct student* p1, * p2;
+	p1 = head;
+	if (head == NULL)      
+	{
+		printf("\n没有学生成绩信息录入！！！！！！！！\n");
+		return (0.0);
+	}
+	else
+	{
+		p2 = p1;
+		while ((cmp1 = strcmp(change_name, p1->name)) != 0 && p1->next != NULL)    //遍历链表并找到输入的学生姓名所在的节点位置
+		{
+			p1 = p1->next;
+			p2 = p1;
+		}
+		if (cmp1 == 0)
+		{
+			c_name = p2->id;
+			return(c_name);             //返回学号信息
+		}
+		else {
+			printf("你输入的学生姓名不存在！！！！！\n");
+			return 0.0;
+		}			
+	}	
+}
+
+//统计每一门最高的成绩
+float tongji_h(abcd* head, int x) 
+{
+	abcd* p1, * p2;
+	float h1 = 0.0;
+	p1 = head;
+	if (head == NULL)       //空链表返回最高分0.0
+	{
+		return (0.0);
+	}
+	else if (x == 0)     //如果参数x=0返回高数最高分
+	{
+		p2 = p1;
+		h1 = p2->gaoshu;
+		while (p1->next != NULL)      //遍历链表找到最高分
+		{
+			p1 = p1->next;
+			p2 = p1;
+			if (p2->gaoshu >= h1) {
+				h1 = p2->gaoshu;
+			}	
+		}
+	}
+	else if (x == 1)           //如果参数x=1返回C语言最高分
+	{
+		p2 = p1;
+		h1 = p2->c_yuyan;
+		while (p1->next != NULL)
+		{
+			p1 = p1->next;
+			p2 = p1;
+			if (p2->c_yuyan >= h1) {
+				h1 = p2->c_yuyan;
+			}			
+		}
+	}
+	else if (x == 2)        //如果参数x=2返回英语最高分
+	{
+		p2 = p1;
+		h1 = p2->english;
+		while (p1->next != NULL)
+		{
+			p1 = p1->next;
+			p2 = p1;
+			if (p2->english >= h1) {
+				h1 = p2->english;
+			}		
+		}
+	}
+	return h1;          //返回float类型的最高分
+}
+
+//统计每一门不及格学生的数量
+int tongji(abcd* head,int x)
+{
+	int num_c=0;
+	abcd* p1, * p2;
+	p1 = head;
+	if (head == NULL)      //空链表返回0
+	{
+		printf("\n没有学生成绩信息录入！！！！！！！！！！！\n");
+		return(0);
+	}
+	else if(x==0)        //如果参数x==0返回高数不及格学生的人数
+	{
+		p2 = p1;
+		if (p2->gaoshu < 60.0) {
+			num_c++;
+		}
+		while (p1->next != NULL)
+		{
+			p1 = p1->next;
+			p2 = p1;
+			if (p2->gaoshu < 60.0) {
+				num_c++;
+			}			
+		}
+	}
+	else if (x == 1)                //如果参数x==1返回C语言不及格学生的人数
+	{
+		p2 = p1;
+		if (p2->c_yuyan < 60.0) {
+			num_c++;
+		}
+		while (p1->next != NULL)
+		{
+			p1 = p1->next;
+			p2 = p1;
+			if (p2->c_yuyan < 60.0) {
+				num_c++;
+			}			
+		}
+	}
+	else if (x == 2)             //如果参数x==2返回英语不及格学生的人数
+	{
+		p2 = p1;
+		if (p2->english < 60.0) {
+			num_c++;
+		}
+		while (p1->next != NULL)
+		{
+			p1 = p1->next;
+			p2 = p1;
+			if (p2->english < 60.0) {
+				num_c++;
+			}
+		}
+	}
+	return (num_c);      //返回不及格人数
+}
+
+//遍历输出链表所有数据域的信息
+void print(abcd* head) {
+	abcd* p;
+	int i=1;
+	printf("总共有%d个学生的信息：\n", n);
+	printf("┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┓\n");
+	printf("┃    学号   ┃    姓名   ┃ 高数成绩 ┃  C语言成绩 ┃  英语成绩  ┃  平均成绩  ┃    顺序    ┃ \n");
+    printf("┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━┫\n");
+	p = head;
+	while (p != NULL)
+	{
+		
+		printf("┃%10.0lf", p->id);
+		printf("┃%11s", p->name);
+		printf("┃%10.1f", p->gaoshu);
+		printf("┃%12.1f", p->c_yuyan);
+		printf("┃%12.1f", p->english);
+		printf("┃%12.1f", p->average);
+		printf("┃%12d┃", i);
+		printf("\n┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━┫\n");
+		p = p->next;
+		i++;
+	}
+	printf("┃    学号   ┃    姓名   ┃ 高数成绩 ┃  C语言成绩 ┃  英语成绩  ┃  平均成绩  ┃    顺序    ┃ \n");
+	printf("┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━┻━━━━━━━━━━━━┻━━━━━━━━━━━━┻━━━━━━━━━━━━┻━━━━━━━━━━━━┛\n");
+}
+
+//输出三门成绩最高分的不及格的学生信息
+void print_low(abcd* head)
+{
+	abcd* p1, * p2;
+	p2 = head;
+	int low = 0;
+	if (head == NULL)
+	{
+		printf("没有学生成绩输入！！！！！！！！！");
+	}
+	else
+	{
+		printf("\t\t\t下面是所有最高分中不及格学生的信息：\n\n");
+		printf("┏━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┓\n");
+		printf("┃    学号   ┃    姓名   ┃ 高数成绩 ┃  C语言成绩 ┃  英语成绩  ┃  平均成绩  ┃ \n");
+		printf("┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━┫\n");
+
+		while (1)
+		{
+			p1 = p2;
+			if (((p1->c_yuyan) < 60) && ((p1->gaoshu < 60)) && ((p1->english) < 60))
+			{
+				printf("┃%10.0lf", p1->id);
+				printf("┃%11s", p1->name);
+				printf("┃%10.1f", p1->gaoshu);
+				printf("┃%12.1f", p1->c_yuyan);
+				printf("┃%12.1f", p1->english);
+				printf("┃%12.1f┃", p1->average);
+				printf("\n┣━━━━━━━━━━━╋━━━━━━━━━━━╋━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━╋━━━━━━━━━━━━┫\n");
+				low++;
+			}
+			p2 = p2->next;
+			if (p2 == NULL)
+			{
+				printf("┃    学号   ┃    姓名   ┃ 高数成绩 ┃  C语言成绩 ┃  英语成绩  ┃  平均成绩  ┃\n");
+				printf("┗━━━━━━━━━━━┻━━━━━━━━━━━┻━━━━━━━━━━┻━━━━━━━━━━━━┻━━━━━━━━━━━━┻━━━━━━━━━━━━┛\n");
+				printf("最高分不及格的学生总共有 %d 人\n", low);
+				break;
+			}
+		}
+	}
+}
+
+//声明菜单函数
+void menu();
+void menu2();
+void menu3();
+
+//主函数
+int main()
+{
+	/*int daojishi;
+	system("color 03");
+	printf("\n\n\n\n\n\n\n\n\n\n\n\n\t\t\t\t\t欢迎进入刘凯旋编写的程序(-_-)\n\n\n\n\n\n\n\n\n\n\n\n\n\n");
+	printf("\n\n\n\n\n\n\n");
+	for (daojishi = 0; daojishi <= 50; daojishi++)
+	{
+		printf("*************************************************************");
+		printf("%d%%", daojishi * 2);
+		printf("\r");
+		Sleep(50);
+	}*/
+
+
+	int a1, b1, c1;
+	do {
+		system("color 09");
+		system("cls");           //清屏
+		menu();                 //调用主菜单函数
+		scanf("%d", &a1);
+		if (a1 == 1)                //如果输入 1 调用创建链表的函数
+		{
+			system("cls");
+			system("color 0C");
+			printf("是否继续 1/0 \n\n提示：如果继续将会覆盖之前的链表数据\n");
+			printf("请输入 1/0    ：");
+			int j;
+			scanf("%d", &j);
+			if (j == 0)
+				goto end1;               //如果输入 0 跳转到end1处
+			system("cls");
+			system("color 03");
+			printf("请输入学生信息：\n\n");
+			head = create();        //调用create创建新的链表
+		end1:;
+		}
+		else if (a1 == 2)          //输入 2 进入查询记录模块
+		{
+			do {
+				system("cls");
+				system("color 0A");
+				menu2();
+				scanf("%d", &b1);
+				if (b1 == 1)       //输入 1 进入学号查询信息
+				{
+					system("cls");
+					double look_id;
+					printf("请输入你要查询的学生学号：");
+					scanf("%lf", &look_id);
+					head = look(head, look_id);      //调用学号查询信息函数
+					system("pause");
+				}
+				else if (b1 == 2)            //输入 2 进入姓名查询信息
+				{
+					system("cls");
+					char look_name[20];
+					printf("请输入你要查询的学生姓名：");
+					scanf("%s", &look_name);
+					head = look_n(head, look_name);     //调用姓名查询信息函数
+					system("pause");
+				}
+				else if (b1 == 3) 
+				{
+					system("cls");
+					print_low(head);                   //输入 3 进入输出最高分不及格学生信息 
+					system("pause");
+				}
+			} while (b1 != 4);                         // 输入 4 返回主菜单
+		}
+		else if(a1 == 3)                      //如果主菜单界面输入 3 进入更新模块
+		{
+			do {
+				system("cls");
+				system("color 0E");
+				menu3();                         //调用更新模块的菜单
+				scanf("%d", &c1);
+				if (c1 == 1)                    //输入 1 进入根据学号修改学生信息（删除所在节点并将新的学生信息插入链表尾）
+				{
+					system("cls");
+					printf("请输入你想要修改的学生的学号：");
+					double numchange;
+					scanf("%lf", &numchange);         
+					printf("\n");
+					head = change(head, numchange);             //调用change函数
+					system("pause");
+				}
+				else if (c1 == 2)            //输入 2 根据姓名修改学生信息
+				{
+					system("cls");
+					double c_name;
+					printf("请输入你想要修改的学生的姓名：");
+					char change_name[20];
+					scanf("%s", &change_name);
+					printf("\n");
+					c_name = change_n(head, change_name);         //返回该姓名所对应的学号
+					if(c_name!=0.0)
+					{ 
+						head = change(head, c_name);
+					}
+					system("pause");
+				}
+				else if (c1 == 3)                       //如果输入 3 根据平均成绩降序排序
+				{
+					system("cls");
+					head = sort_ave(head);              //调用排序成绩函数
+					system("color 0D");
+					printf("\t\t\t\t这是按照平均成绩降序排序输出的表格\n\n");
+					print(head);                 //调用输出链表的函数
+					printf("\n");
+					system("pause");
+				}
+				else if (c1 == 4)             //如果输入 4 根据学号升序排序
+				{
+					system("cls");
+					printf("\t\t\t\t这是按照学号升序排序输出的表格\n\n");
+					head = sort_id(head);          //调用排序学号的函数
+					system("color 0D");
+					print(head);                  //调用输出链表的函数
+					system("pause");
+				}
+				else if (c1 == 5)                //如果输入 5 插入学生信息到链表尾
+				{
+					abcd* stu;
+					system("cls");
+					stu = (abcd*)malloc(LEN);                 //声明学生结构体指针类型stu  并分配内存
+					printf("请输入你要插入的学生信息：\n");
+					while (1) {
+						printf("请输入11位学号：\n");
+						scanf("%lf", &stu->id);
+						if (stu->id >= 10000000000 && stu->id <= 99999999999)
+							break;
+						else
+						{
+							printf("学号输入的长度不对，请重新输入\n");
+						}
+					}
+					printf("请输入姓名：\n");
+					scanf("%s", &stu->name);
+					printf("请输入高数成绩：\n");
+					scanf("%f", &stu->gaoshu);
+					printf("请输入C语言成绩：\n");
+					scanf("%f", &stu->c_yuyan);
+					printf("请输入英语成绩：\n");
+					scanf("%f", &stu->english);
+					stu->average = (float)(stu->c_yuyan + stu->gaoshu + stu->english) / 3.0;
+					head = add(head, stu);            //调用输出链表的函数
+					system("pause");
+				}
+				else if (c1 == 6)                 //输入 6 根据学号删除学生信息
+				{
+					double delete_id;
+					system("cls");
+					printf("请输入你所要删除的学生的学号：");
+					scanf("%lf", &delete_id);
+					head = delete(head,delete_id);
+					system("pause");
+				}
+			} while (c1 != 7);             //当输入7返回主菜单
+		}
+		else if (a1 == 4)          //当主菜单界面输入 4 统计各科不及格人数还有最高分 
+		{
+			system("cls");
+			int num_low[3] = {0,0,0};  
+			float grade_h[3] = { 0.0,0.0,0.0 };   //声明数组
+			num_low[0] = tongji(head, 0);       //高数不及格人数
+			num_low[1] = tongji(head, 1);       //C语言不及格人数
+			num_low[2] = tongji(head, 2);       //英语不及格人数
+			grade_h[0] = tongji_h(head, 0);     //C语言最高分
+			grade_h[1] = tongji_h(head, 1);     //高数最高分
+			grade_h[2] = tongji_h(head, 2);     //英语最高分
+			printf("\t\t\t各科成绩不及格的统计结果为：\n\n");
+			printf("\t\t\t┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓\n");
+			printf("\t\t\t┃ 高数不及格人数┃     %3d    ┃\n ", num_low[0]);
+			printf("\t\t\t┣━━━━━━━━━━━━━━━╋━━━━━━━━━━━━┫\n");
+			printf("\t\t\t┃C语言不及格人数┃     %3d    ┃\n", num_low[1]);
+			printf("\t\t\t┣━━━━━━━━━━━━━━━╋━━━━━━━━━━━━┫\n");
+			printf("\t\t\t┃英语不及格人数 ┃     %3d    ┃\n", num_low[2]);
+			printf("\t\t\t┗━━━━━━━━━━━━━━━┻━━━━━━━━━━━━┛\n");
+			printf("\t\t\t每一科目最高分数的统计情况为：\n\n");
+			printf("\t\t\t┏━━━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┓\n");
+			printf("\t\t\t┃C语言所有成绩中最高分┃     %5.1lf  ┃\n ", grade_h[1]);
+			printf("\t\t\t┣━━━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━┫\n");
+			printf("\t\t\t┃高数所有成绩中最高分 ┃     %5.1lf  ┃\n", grade_h[0]);
+			printf("\t\t\t┣━━━━━━━━━━━━━━━━━━━━━╋━━━━━━━━━━━━┫\n");
+			printf("\t\t\t┃英语所有成绩中最高分 ┃     %5.1lf  ┃\n", grade_h[2]);
+			printf("\t\t\t┗━━━━━━━━━━━━━━━━━━━━━┻━━━━━━━━━━━━┛\n");
+			system("pause");
+		}
+		else if (a1 == 5)      //主菜单输入 5 输出当前链表中所有的学生信息
+		{
+			system("cls");
+			system("color 0D");
+			print(head);      //调用输出函数
+			printf("\n"); 
+			system("pause");
+		}
+	} while (a1 != 6);   //当输入 6 退出程序
+	return 0;
+}
+void menu()
+{
+
+	printf("\n\n\t\t\t***********欢迎使用学生成绩管理系统**********");
+	printf("\n\n\t\t\t		1.输入记录模块	");
+	printf("\n\n\t\t\t		2.查询记录模块   ");
+	printf("\n\n\t\t\t		3.更新记录模块	");
+	printf("\n\n\t\t\t		4.统计记录模块   ");
+	printf("\n\n\t\t\t		5.输出记录模块   ");
+	printf("\n\n\t\t\t		6.退出系统    ");
+	printf("\n\n\t\t\t-------------------------------------------");
+	printf("\n\n\t\t\t********请您选择操作选项********	");
+	printf("\n\t\t\t请输入您的选择(1-6)：");
+
+}
+void menu2()
+{
+	printf("\n\n\t\t\t*****************欢迎进入查询记录模块*****************");
+	printf("\n\n\t\t\t         1.按照学号查询你想要查询的学生信息");
+	printf("\n\n\t\t\t         2.按照姓名查询你想要查询的学生信息");
+	printf("\n\n\t\t\t         3.查找其中最高分的不及格的学生信息");
+	printf("\n\n\t\t\t         4.返回主菜单");
+	printf("\n\n\t\t\t------------------------------------------------------");
+	printf("\n\n\t\t\t         ********请您选择操作选项********	");
+	printf("\n\t\t\t请输入你的选择（1-4）：");
+}
+void menu3()
+{
+	printf("\n\n\t\t\t*****************欢迎进入更新记录模块*****************");
+	printf("\n\n\t\t\t         1.按照学号修改你想要更新的学生信息");
+	printf("\n\n\t\t\t         2.按照姓名修改你想要更新的学生信息");
+	printf("\n\n\t\t\t         3.按照平均成绩降序排序更新现有学生信息");
+	printf("\n\n\t\t\t         4.按照学号升序排序更新现有学生信息");
+	printf("\n\n\t\t\t         5.插入一个新的学生信息");
+	printf("\n\n\t\t\t         6.删除一个新的学生信息");
+	printf("\n\n\t\t\t         7.返回主菜单");
+	printf("\n\n\t\t\t------------------------------------------------------");
+	printf("\n\n\t\t\t         ********请您选择操作选项********	");
+	printf("\n\t\t\t请输入你的选择（1-7）：");
+}
+
