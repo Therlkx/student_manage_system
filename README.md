@@ -1,4 +1,4 @@
-# student_manage_system
+# student_manage_system 学生成绩管理系统
 这是一个用C语言实现的学生成绩管理系统。
 C语言课程设计题目及要求
 
